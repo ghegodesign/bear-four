@@ -1,37 +1,165 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizzazione AR - portale.glb</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer"></script>
-    <style>
-        body {
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        model-viewer {
-            width: 100%;
-            max-width: 600px;
-            height: 500px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
+  <title> beAR four</title>
+
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+
+  <style>
+    /* Questo mantiene i nodi figli nascosti mentre l'elemento si carica */
+    :not(:defined) > * {
+      display: none;
+    }
+    
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; /* Blocca lo scrolling */
+  }
+     @font-face {
+    font-family: 'DOS_Pixelcity';
+    src: url('assets/DOS_Pixelcity-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+    
+    model-viewer {
+      background-color: #fff;
+      overflow-x: hidden;
+      width: 100%;
+      height: 100vh;
+    }
+
+    #ar-button {
+      background-image: url(assets/ic_view_in_ar_new_googblue_48dp.png);
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      background-position: 12px 50%;
+      background-color: #fff;
+      position: absolute;
+      left: 60%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      bottom: 132px;
+      padding: 0px 16px 0px 40px;
+      font-family: 'DOS_Pixelcity', sans-serif; /* Cambia il font del bottone */
+      font-size: 21px;
+      color:#0000ff;
+      height: 36px;
+      line-height: 36px;
+      border-radius: 0px;
+      border: 2px solid #00ffff;
+    }
+
+    #ar-button:active {
+      background-color: #00ffff;
+      border: 2px solid #0000ff;
+    }
+
+    #ar-button:focus {
+      outline: none;
+    }
+
+    #ar-button:focus-visible {
+      outline: 2px solid #0000ff;
+    }
+
+    @keyframes circle {
+      from { transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg); }
+      to   { transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg); }
+    }
+
+    @keyframes elongate {
+      from { transform: translateX(100px); }
+      to   { transform: translateX(-100px); }
+    }
+
+    model-viewer > #ar-prompt {
+      position: absolute;
+      left: 50%;
+      bottom: 175px;
+      animation: elongate 2s infinite ease-in-out alternate;
+      display: none;
+    }
+
+    model-viewer[ar-status="session-started"] > #ar-prompt {
+      display: block;
+    }
+
+    model-viewer > #ar-prompt > img {
+      animation: circle 4s linear infinite;
+    }
+
+    model-viewer > #ar-failure {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 175px;
+      display: none;
+    }
+
+    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
+      display: block;
+    }
+  </style>
 </head>
+
 <body>
-    <model-viewer 
-        src="portale.glb" 
-        alt="Modello 3D di un portale"
-        ar 
-        ar-modes="webxr scene-viewer quick-look"
-        camera-controls 
-        shadow-intensity="1">
-        <button slot="ar-button" style="position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); padding: 10px 20px; background-color: #6200ea; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-            Visualizza in AR
-        </button>
-    </model-viewer>
+  
+  <!-- Esperienza AR con un oggetto -->
+  <model-viewer 
+    exposure="1" 
+    shadow-softness="1"
+    src="portale.glb" 
+    poster="poster.webp" 
+    ar-scale="fixed"
+    tone-mapping="aces" 
+    shadow-intensity="1" 
+    ar 
+    ar-modes="webxr scene-viewer quick-look"
+    camera-controls
+    camera-orbit="1.031deg 86.34deg 7.905m" field-of-view="16.59deg"
+    touch-action="pan-y" 
+    alt="Design Weekend 2025"
+    autoplay
+    animation-loop
+    ios-src="assets/250221_Test.usdz">
+    
+    <script>
+  const modelViewer = document.querySelector('model-viewer');
+  modelViewer.addEventListener('ar-button-press', () => {
+    const iosSrc = modelViewer.getAttribute('ios-src');
+    if (iosSrc && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      window.location.href = iosSrc; // Forza l'apertura del file .usdz
+    }
+  });
+</script>
+
+    
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+
+    <div id="ar-prompt">
+      <img src="assets/hand.png">
+    </div>
+
+    <button id="ar-failure">
+      AR is not tracking!
+    </button>
+
+  </model-viewer>
+
 </body>
 </html>
