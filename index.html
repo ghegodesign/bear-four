@@ -59,19 +59,16 @@
     src="dentro.glb" 
     ar 
     ar-modes="webxr scene-viewer quick-look"
-    camera-controls>
-    <button slot="ar-button" id="ar-button">
-      View in your space
-    </button>
-  </model-viewer>
+    camera-controls
 
-  <!-- Modello maschera (occlusione) -->
-  <model-viewer 
     id="fuori-viewer"
     src="fuori.glb"
     ar 
     ar-modes="webxr scene-viewer quick-look"
     camera-controls>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
   </model-viewer>
 
   <script>
