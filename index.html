@@ -6,15 +6,9 @@
   <title>beAR four</title>
 
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  
   <link rel="stylesheet" href="main.css">
 
   <style>
-    /* Nasconde i figli finché model-viewer non è caricato */
-    :not(:defined) > * {
-      display: none;
-    }
-
     * {
       margin: 0;
       padding: 0;
@@ -24,18 +18,10 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden; /* Blocca lo scrolling */
-    }
-
-    @font-face {
-      font-family: 'DOS_Pixelcity';
-      src: url('assets/DOS_Pixelcity-Regular.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
+      overflow: hidden;
     }
 
     model-viewer {
-      background-color: #fff;
       width: 100%;
       height: 100vh;
     }
@@ -47,14 +33,12 @@
       background-position: 12px 50%;
       background-color: #fff;
       position: absolute;
-      left: 60%;
+      left: 50%;
       transform: translateX(-50%);
-      white-space: nowrap;
       bottom: 132px;
       padding: 0px 16px 0px 40px;
-      font-family: 'DOS_Pixelcity', sans-serif;
       font-size: 21px;
-      color: #0000ff;
+      color:#0000ff;
       height: 36px;
       line-height: 36px;
       border-radius: 0px;
@@ -65,98 +49,45 @@
       background-color: #00ffff;
       border: 2px solid #0000ff;
     }
-
-    #ar-button:focus {
-      outline: none;
-    }
-
-    #ar-button:focus-visible {
-      outline: 2px solid #0000ff;
-    }
-
-    @keyframes circle {
-      from { transform: translateX(-50%) rotate(0deg) translateX(50px) rotate(0deg); }
-      to   { transform: translateX(-50%) rotate(360deg) translateX(50px) rotate(-360deg); }
-    }
-
-    @keyframes elongate {
-      from { transform: translateX(100px); }
-      to   { transform: translateX(-100px); }
-    }
-
-    model-viewer > #ar-prompt {
-      position: absolute;
-      left: 50%;
-      bottom: 175px;
-      animation: elongate 2s infinite ease-in-out alternate;
-      display: none;
-    }
-
-    model-viewer[ar-status="session-started"] > #ar-prompt {
-      display: block;
-    }
-
-    model-viewer > #ar-prompt > img {
-      animation: circle 4s linear infinite;
-    }
-
-    model-viewer > #ar-failure {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 175px;
-      display: none;
-    }
-
-    model-viewer[ar-tracking="not-tracking"] > #ar-failure {
-      display: block;
-    }
   </style>
 </head>
 
 <body>
-  
-  <!-- Esperienza AR con occlusione -->
+  <!-- Modello principale (interno visibile) -->
   <model-viewer 
-    id="viewer"
-    src="portale.glb" 
-    poster="poster.webp" 
-    ar
+    id="dentro-viewer"
+    src="dentro.glb" 
+    ar 
     ar-modes="webxr scene-viewer quick-look"
-    camera-controls
-    tone-mapping="aces"
-    shadow-intensity="1"
-    touch-action="pan-y"
-    alt="Design Weekend 2025">
+    camera-controls>
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+  </model-viewer>
+
+  <!-- Modello occlusivo (maschera) -->
+  <model-viewer 
+    id="fuori-viewer"
+    src="fuori.glb"
+    ar 
+    ar-modes="webxr scene-viewer quick-look"
+    camera-controls>
   </model-viewer>
 
   <script>
-    document.querySelector("#viewer").addEventListener("load", (event) => {
-      const model = event.target.model;
+    document.querySelector("#fuori-viewer").addEventListener("load", async (event) => {
+      const modelViewer = event.target;
+      const model = await modelViewer.model;
+      
       if (!model) return;
-
+      
       model.traverse((node) => {
-        if (node.isMesh && node.name === "cube.001") { // Identifica l'oggetto occlusivo
-          node.material.depthWrite = true;  // Scrive nel buffer di profondità
-          node.material.colorWrite = false; // Evita di colorare (se supportato)
-          node.material.transparent = true;
-          node.material.opacity = 0.0;      // Invisibile ma occlusivo
+        if (node.isMesh) {
+          node.material.colorWrite = false;  // Rende invisibile il colore
+          node.material.depthWrite = true;   // Mantiene l'occlusione
         }
       });
     });
   </script>
-
-  <button slot="ar-button" id="ar-button">
-    View in your space
-  </button>
-
-  <div id="ar-prompt">
-    <img src="assets/hand.png">
-  </div>
-
-  <button id="ar-failure">
-    AR is not tracking!
-  </button>
-
 </body>
 </html>
