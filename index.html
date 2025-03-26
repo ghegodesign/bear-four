@@ -38,16 +38,16 @@
       bottom: 132px;
       padding: 0px 16px 0px 40px;
       font-size: 21px;
-      color:#0000ff;
+      color:#6d6dff;
       height: 36px;
       line-height: 36px;
       border-radius: 0px;
-      border: 2px solid #00ffff;
+      border: 2px solid #000000;
     }
 
     #ar-button:active {
-      background-color: #00ffff;
-      border: 2px solid #0000ff;
+      background-color: #b0d8d6;
+      border: 2px solid #000000;
     }
   </style>
 </head>
@@ -75,19 +75,21 @@
   </model-viewer>
 
   <script>
+    // Attivare la modalità holdout una volta che il modello è caricato
     document.querySelector("#fuori-viewer").addEventListener("load", async (event) => {
       const modelViewer = event.target;
       const model = await modelViewer.model;
-      
+
       if (!model) return;
 
-      // Verifica se la mesh esiste
+      // Verifica se il modello contiene mesh
       model.traverse((node) => {
         if (node.isMesh) {
-          // Applica una trasparenza parziale per il test
-          node.material.transparent = true;
-          node.material.opacity = 0.5; // Trasparenza al 50% per il test
-          node.material.depthWrite = true; // Mantiene l'occlusione
+          // Abilita il comportamento "holdout"
+          node.material.depthWrite = false;  // Disabilita la scrittura sul depth buffer
+          node.material.transparent = true;  // Rende il modello parzialmente trasparente
+          node.material.opacity = 0;  // Rende invisibile il modello, ma mantiene l'occlusione
+          node.material.depthTest = true;  // Impedisce che venga mostrato dietro gli altri oggetti
         }
       });
     });
