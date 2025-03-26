@@ -3,41 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no">
-  <title> beAR four</title>
+  <title>beAR four</title>
 
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   
   <link rel="stylesheet" href="main.css">
 
   <style>
-    /* Questo mantiene i nodi figli nascosti mentre l'elemento si carica */
+    /* Nasconde i figli finché model-viewer non è caricato */
     :not(:defined) > * {
       display: none;
     }
-    
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden; /* Blocca lo scrolling */
-  }
-     @font-face {
-    font-family: 'DOS_Pixelcity';
-    src: url('assets/DOS_Pixelcity-Regular.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-  }
-    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* Blocca lo scrolling */
+    }
+
+    @font-face {
+      font-family: 'DOS_Pixelcity';
+      src: url('assets/DOS_Pixelcity-Regular.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     model-viewer {
       background-color: #fff;
-      overflow-x: hidden;
       width: 100%;
       height: 100vh;
     }
@@ -54,9 +52,9 @@
       white-space: nowrap;
       bottom: 132px;
       padding: 0px 16px 0px 40px;
-      font-family: 'DOS_Pixelcity', sans-serif; /* Cambia il font del bottone */
+      font-family: 'DOS_Pixelcity', sans-serif;
       font-size: 21px;
-      color:#0000ff;
+      color: #0000ff;
       height: 36px;
       line-height: 36px;
       border-radius: 0px;
@@ -118,49 +116,47 @@
 
 <body>
   
-  <!-- Esperienza AR con un oggetto -->
+  <!-- Esperienza AR con occlusione -->
   <model-viewer 
-    exposure="1" 
-    shadow-softness="1"
-    src="portale.fbx" 
+    id="viewer"
+    src="portale.glb" 
     poster="poster.webp" 
-    ar-scale="fixed"
-    tone-mapping="aces" 
-    shadow-intensity="1" 
-    ar 
+    ar
     ar-modes="webxr scene-viewer quick-look"
     camera-controls
-    camera-orbit="1.031deg 86.34deg 7.905m" field-of-view="16.59deg"
-    touch-action="pan-y" 
-    alt="Design Weekend 2025"
-    autoplay
-    animation-loop
-    ios-src="assets/250221_Test.usdz">
-    
-    <script>
-  const modelViewer = document.querySelector('model-viewer');
-  modelViewer.addEventListener('ar-button-press', () => {
-    const iosSrc = modelViewer.getAttribute('ios-src');
-    if (iosSrc && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
-      window.location.href = iosSrc; // Forza l'apertura del file .usdz
-    }
-  });
-</script>
-
-    
-    <button slot="ar-button" id="ar-button">
-      View in your space
-    </button>
-
-    <div id="ar-prompt">
-      <img src="assets/hand.png">
-    </div>
-
-    <button id="ar-failure">
-      AR is not tracking!
-    </button>
-
+    tone-mapping="aces"
+    shadow-intensity="1"
+    touch-action="pan-y"
+    alt="Design Weekend 2025">
   </model-viewer>
+
+  <script>
+    document.querySelector("#viewer").addEventListener("load", (event) => {
+      const model = event.target.model;
+      if (!model) return;
+
+      model.traverse((node) => {
+        if (node.isMesh && node.name === "cube.001") { // Identifica l'oggetto occlusivo
+          node.material.depthWrite = true;  // Scrive nel buffer di profondità
+          node.material.colorWrite = false; // Evita di colorare (se supportato)
+          node.material.transparent = true;
+          node.material.opacity = 0.0;      // Invisibile ma occlusivo
+        }
+      });
+    });
+  </script>
+
+  <button slot="ar-button" id="ar-button">
+    View in your space
+  </button>
+
+  <div id="ar-prompt">
+    <img src="assets/hand.png">
+  </div>
+
+  <button id="ar-failure">
+    AR is not tracking!
+  </button>
 
 </body>
 </html>
