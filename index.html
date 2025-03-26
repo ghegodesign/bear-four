@@ -80,14 +80,18 @@
       const model = await modelViewer.model;
       
       if (!model) return;
-      
+
+      // Verifica se la mesh esiste
       model.traverse((node) => {
         if (node.isMesh) {
-          node.material.colorWrite = false;  // Rende invisibile il colore
-          node.material.depthWrite = true;   // Mantiene l'occlusione
+          // Applica una trasparenza parziale per il test
+          node.material.transparent = true;
+          node.material.opacity = 0.5; // Trasparenza al 50% per il test
+          node.material.depthWrite = true; // Mantiene l'occlusione
         }
       });
     });
   </script>
+
 </body>
 </html>
