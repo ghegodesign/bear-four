@@ -38,22 +38,22 @@
       bottom: 132px;
       padding: 0px 16px 0px 40px;
       font-size: 21px;
-      color:#6d6dff;
+      color:#0000ff;
       height: 36px;
       line-height: 36px;
       border-radius: 0px;
-      border: 2px solid #000000;
+      border: 2px solid #00ffff;
     }
 
     #ar-button:active {
-      background-color: #b0d8d6;
-      border: 2px solid #000000;
+      background-color: #00ffff;
+      border: 2px solid #0000ff;
     }
   </style>
 </head>
 
 <body>
-  <!-- Modello principale (interno visibile) -->
+  <!-- Modello principale (visibile) -->
   <model-viewer 
     id="dentro-viewer"
     src="dentro.glb" 
@@ -65,7 +65,7 @@
     </button>
   </model-viewer>
 
-  <!-- Modello occlusivo (maschera) -->
+  <!-- Modello maschera (occlusione) -->
   <model-viewer 
     id="fuori-viewer"
     src="fuori.glb"
@@ -75,25 +75,23 @@
   </model-viewer>
 
   <script>
-    // Attivare la modalità holdout una volta che il modello è caricato
-    document.querySelector("#fuori-viewer").addEventListener("load", async (event) => {
-      const modelViewer = event.target;
-      const model = await modelViewer.model;
+    // Caricamento del modello di occlusione "fuori.glb"
+    const fuoriViewer = document.querySelector('#fuori-viewer');
+    fuoriViewer.addEventListener('load', () => {
+      // Gestire il modello "fuori" e applicare la trasparenza al materiale
+      const model = fuoriViewer.model;
 
       if (!model) return;
 
-      // Verifica se il modello contiene mesh
+      // Impostare il materiale come trasparente per evitare che venga visibile
       model.traverse((node) => {
         if (node.isMesh) {
-          // Abilita il comportamento "holdout"
-          node.material.depthWrite = false;  // Disabilita la scrittura sul depth buffer
-          node.material.transparent = true;  // Rende il modello parzialmente trasparente
-          node.material.opacity = 0;  // Rende invisibile il modello, ma mantiene l'occlusione
-          node.material.depthTest = true;  // Impedisce che venga mostrato dietro gli altri oggetti
+          // Aggiungiamo una maschera per l'area che nasconde tutto dietro
+          node.material.transparent = true;
+          node.material.opacity = 0; // Nasconde il modello, ma mantiene l'occlusione
         }
       });
     });
   </script>
-
 </body>
 </html>
