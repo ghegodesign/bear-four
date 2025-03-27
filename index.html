@@ -38,16 +38,16 @@
       bottom: 132px;
       padding: 0px 16px 0px 40px;
       font-size: 21px;
-      color:#0000ff;
+      color:#C19C87;
       height: 36px;
       line-height: 36px;
       border-radius: 0px;
-      border: 2px solid #00ffff;
+      border: 2px solid #C19C87;
     }
 
     #ar-button:active {
-      background-color: #00ffff;
-      border: 2px solid #0000ff;
+      background-color: #C19C87;
+      border: 2px solid #C19C87;
     }
   </style>
 </head>
@@ -56,7 +56,7 @@
   <!-- Modello principale (visibile) -->
   <model-viewer 
     id="fuori-viewer"
-    src="fuori.glb"
+    src="animated bear.glb"
     ar 
     ar-modes="webxr scene-viewer quick-look"
     camera-controls>
@@ -65,24 +65,6 @@
     </button>
   </model-viewer>
 
-  <script>
-    // Caricamento del modello di occlusione "fuori.glb"
-    const fuoriViewer = document.querySelector('#fuori-viewer');
-    fuoriViewer.addEventListener('load', () => {
-      // Gestire il modello "fuori" e applicare la trasparenza al materiale
-      const model = fuoriViewer.model;
 
-      if (!model) return;
-
-      // Impostare il materiale come trasparente per evitare che venga visibile
-      model.traverse((node) => {
-        if (node.isMesh) {
-          // Aggiungiamo una maschera per l'area che nasconde tutto dietro
-          node.material.transparent = true;
-          node.material.opacity = 0.5; // Nasconde il modello, ma mantiene l'occlusione
-        }
-      });
-    });
-  </script>
 </body>
 </html>
